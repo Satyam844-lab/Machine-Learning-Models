@@ -8,7 +8,7 @@ Binary classification of fraudulent credit card transactions using Logistic Regr
 
 | | Rows | Fraud cases | Fraud rate |
 |---|---|---|---|
-| Train (`fraudTrain.csv`) | [TRAIN_ROWS] | [TRAIN_FRAUD] | [TRAIN_RATE]% |
+| Train (`fraudTrain.csv`) | [1296675] | [555719] | [0.58]% |
 | Test (`fraudTest.csv`) | 555,719 | 2,145 | 0.39% |
 
 The data is **simulated**, not real bank data. It is not included in this repository (file size); download it from the Kaggle link above.
