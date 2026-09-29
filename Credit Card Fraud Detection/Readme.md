@@ -1,2 +1,93 @@
-<center>💳 Credit Card Fraud Detection Project</center>
-<hr> <h2>Project Overview</h2> <p> This project uses machine learning to detect fraudulent transactions in credit card data. It demonstrates the full pipeline: data cleaning, feature engineering, model building (Logistic Regression/Random Forest), evaluation, and interactive prediction on new transactions. The solution is designed for high-impact, real-world use cases such as banking, e-commerce, and fintech. </p> <hr> <h2>📂 Dataset</h2> <ul> <li><b>Source:</b> <a href="https://www.kaggle.com/datasets/kartik2112/fraud-detection">Kaggle - Credit Card Transactions Fraud Detection</a></li> <li><b>Size:</b> 500,000+ transactions</li> <li><b>Fraud Cases:</b> <1% of all transactions (<code>is_fraud</code> column is the target)</li> <li><b>Features:</b> Categorical, geographic, and temporal data (amount, merchant category, location, time, etc.)</li> </ul> <hr> <h2>🛠️ Workflow Overview</h2> <ol> <li><b>Load & Explore Data</b> <ul> <li>Initial data check (shape, head, missing values)</li> <li>Visualize class imbalance (fraud vs. non-fraud)</li> </ul> </li> <li><b>Preprocessing</b> <ul> <li>Drop unique IDs, names, and purely textual columns</li> <li>Extract temporal features (hour, day of week)</li> <li>One-hot encode categorical variables</li> <li>Scale numeric features</li> </ul> </li> <li><b>Modeling</b> <ul> <li>Split dataset (stratified train/test split)</li> <li>Train Logistic Regression or Random Forest (class-weighted for imbalance)</li> </ul> </li> <li><b>Evaluation</b> <ul> <li>Confusion matrix, classification report, ROC-AUC score</li> <li><i>Recall is prioritized to catch as many frauds as possible</i></li> </ul> </li> <li><b>Interactive Prediction</b> <ul> <li>User-friendly input function to classify new transactions</li> </ul> </li> </ol> <hr> <h2>📈 Example Results</h2> <pre> Confusion Matrix: [[100173 10542] [ 27 402]] Classification Report: precision recall f1-score support 0 1.00 0.90 0.95 110715 1 0.04 0.94 0.07 429 accuracy 0.90 111144 macro avg 0.52 0.92 0.51 111144 weighted avg 1.00 0.90 0.95 111144 ROC-AUC Score: 0.9787 </pre> <ul> <li>High recall (94%) for fraud cases (almost all frauds detected)</li> <li>Lower precision—many false alarms, common in real-world fraud screening (can be tuned further)</li> <li>Strong ROC-AUC means good separation between fraud and normal transactions</li> </ul> <hr> <h2>💻 How to Run This Project</h2> <ol> <li>Clone the repository and install dependencies:</li> <pre> pip install pandas numpy matplotlib seaborn scikit-learn </pre> <li>Download <b>fraudTest.csv</b> from <a href="https://www.kaggle.com/datasets/kartik2112/fraud-detection">Kaggle</a> and place it in your project folder.</li> <li>Run the script in your Python environment (Jupyter Notebook or any IDE).</li> <li> To test prediction on new data: <ul> <li>Uncomment the <code>user_transaction_prediction()</code> line at the end of the script.</li> <li>Run and enter transaction details as prompted.</li> </ul> </li> </ol> <hr> <h2>📝 Key Learnings & Next Steps</h2> <ul> <li>How to handle imbalanced datasets using stratified splitting and class weighting</li> <li>Model evaluation using confusion matrix, recall, precision, F1, ROC-AUC</li> <li>Building robust user input pipelines for real-time ML inference</li> <li>You can further improve by: <ul> <li>Tuning classification thresholds for desired precision/recall balance</li> <li>Trying ensemble models (Random Forest, XGBoost)</li> <li>Adding SMOTE or undersampling for better class balance</li> <li>Deploying as a web app with Streamlit or Flask</li> </ul> </li> </ul> <hr> <h2>🙋
+# Credit Card Fraud Detection
+
+Binary classification of fraudulent credit card transactions using Logistic Regression, Random Forest and XGBoost, with class-imbalance handling (under-sampling + SMOTE) and evaluation focused on the fraud class.
+
+## Dataset
+
+[Credit Card Transactions Fraud Detection Dataset](https://www.kaggle.com/datasets/kartik2112/fraud-detection) (Kaggle, generated with the Sparkov simulator).
+
+| | Rows | Fraud cases | Fraud rate |
+|---|---|---|---|
+| Train (`fraudTrain.csv`) | [TRAIN_ROWS] | [TRAIN_FRAUD] | [TRAIN_RATE]% |
+| Test (`fraudTest.csv`) | 555,719 | 2,145 | 0.39% |
+
+The data is **simulated**, not real bank data. It is not included in this repository (file size); download it from the Kaggle link above.
+
+## Approach
+
+1. **Feature engineering**
+   - Distance between customer and merchant (haversine formula)
+   - Hour of day, night-time flag, day of week, month
+   - Customer age (from date of birth)
+   - Transaction amount and log-amount
+   - Merchant category (one-hot), gender, city population
+   - Identifier and free-text columns (card number, transaction ID, names, street) were dropped: they have no predictive value and can cause leakage.
+2. **Class imbalance**
+   - Under-sampling of the majority class, then SMOTE on the minority class.
+   - Applied to the **training data only**. The test set keeps its real class distribution.
+3. **Models**
+   - Logistic Regression (baseline, with feature scaling)
+   - Random Forest (200 trees)
+   - XGBoost (300 trees)
+4. **Evaluation**
+   - AUC-ROC, PR-AUC, precision, recall and F1 on the fraud class.
+   - Uses the provided `fraudTest.csv`, which is split from the training data by time, so it mimics predicting future fraud from past data.
+
+## Results
+
+Test set, decision threshold 0.5, fraud class:
+
+| Model | AUC-ROC | PR-AUC | Precision | Recall | F1 |
+|---|---|---|---|---|---|
+| Logistic Regression | 0.9529 | 0.2091 | 0.1893 | 0.7012 | 0.2981 |
+| Random Forest | 0.9960 | 0.8329 | 0.3914 | 0.9142 | 0.5481 |
+| **XGBoost** | **0.9979** | **0.8658** | **0.4002** | **0.9259** | **0.5588** |
+
+Confusion matrix counts on the test set:
+
+| Model | Frauds caught (TP) | Frauds missed (FN) | False alarms (FP) | Correct legitimate (TN) |
+|---|---|---|---|---|
+| Logistic Regression | 1,504 | 641 | 6,441 | 547,133 |
+| Random Forest | 1,961 | 184 | 3,049 | 550,525 |
+| XGBoost | 1,986 | 159 | 2,977 | 550,597 |
+
+![ROC and Precision-Recall curves](roc_pr_curves.png)
+
+![XGBoost feature importance](feature_importance.png)
+
+## Key takeaways
+
+- **Accuracy is misleading here.** With ~0.4% fraud, a model that always predicts "not fraud" is ~99.6% accurate and catches nothing. Precision, recall, F1 and PR-AUC are the primary metrics.
+- **AUC-ROC can look good on imbalanced data.** Logistic Regression has an AUC-ROC of 0.95 but a PR-AUC of only 0.21; the ensembles reach 0.83 to 0.87 PR-AUC.
+- **XGBoost was the best model**, catching about 93% of fraud while flagging about 0.5% of legitimate transactions.
+- **Precision is about 40%.** The models were trained on resampled data where fraud is far more common than in reality, so they over-predict fraud at the default 0.5 threshold. Tuning the threshold on a validation set would trade some recall for higher precision, depending on the relative cost of missed fraud versus false alarms.
+
+## Limitations
+
+- Simulated data; performance on real transactions would likely be lower.
+- Single train/test split; no cross-validation and no hyperparameter tuning.
+- Default 0.5 decision threshold, not tuned to business cost.
+- No real-time, drift-monitoring or explainability components (a production system would need them).
+
+## Repository contents
+
+| File | Description |
+|---|---|
+| `fraud_detection.ipynb` | Full notebook: features, resampling, training, evaluation, plots |
+| `model_comparison.csv` | Results table |
+| `roc_pr_curves.png` | ROC and Precision-Recall curves |
+| `feature_importance.png` | XGBoost top-10 features |
+| `requirements.txt` | Python dependencies |
+
+## How to run
+
+```bash
+pip install -r requirements.txt
+```
+
+1. Download `fraudTrain.csv` and `fraudTest.csv` from the [Kaggle dataset](https://www.kaggle.com/datasets/kartik2112/fraud-detection) and place them next to the notebook.
+2. Open `fraud_detection.ipynb` and run all cells (also runs as-is in a Kaggle notebook with the dataset attached).
+
+## Tech stack
+
+Python, pandas, NumPy, scikit-learn, imbalanced-learn, XGBoost, Matplotlib
